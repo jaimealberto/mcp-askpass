@@ -1,27 +1,29 @@
 # mcp-askpass
 
-Servidor MCP para pedir contraseñas de forma segura en Claude Code.
+> [Versión en español](README.es.md)
 
-Muestra el diálogo de contraseña nativo del sistema (KDE o GNOME) y devuelve el valor directamente a Claude — sin que aparezca en el chat, en los logs ni en el historial de la conversación.
+MCP server for secure password prompts in Claude Code.
 
-## Por qué
+Displays the native system password dialog (KDE or GNOME) and returns the value directly to Claude — without it appearing in the chat, in logs, or in the conversation history.
 
-Cuando Claude Code necesita una contraseña, la respuesta naive es escribirla en el chat. Eso es un problema:
+## Why
 
-- Queda en el **historial de la conversación**
-- Queda en el **log del terminal** si copias y pegas
-- Puede aparecer en los **context windows comprimidos** que Claude almacena
+When Claude Code needs a password, the naive answer is to type it in the chat. That's a problem:
 
-`mcp-askpass` resuelve esto: Claude llama a `ask_password()`, aparece un popup nativo idéntico al de `sudo`, tú escribes la contraseña, y Claude la recibe en memoria. Nada toca el chat.
+- It stays in the **conversation history**
+- It ends up in the **terminal log** if you copy and paste
+- It may appear in **compressed context windows** that Claude stores
 
-## Requisitos
+`mcp-askpass` solves this: Claude calls `ask_password()`, a native popup identical to `sudo`'s appears, you type the password, and Claude receives it in memory. Nothing touches the chat.
+
+## Requirements
 
 - Python 3.10+
 - `mcp` (`pip install mcp`)
-- KDE: `kdialog` (incluido en `kde-cli-tools`)
+- KDE: `kdialog` (included in `kde-cli-tools`)
 - GNOME: `zenity` (`apt install zenity` / `dnf install zenity`)
 
-## Instalación
+## Installation
 
 ```bash
 git clone https://github.com/jaimealberto/mcp-askpass
@@ -29,7 +31,7 @@ cd mcp-askpass
 pip install mcp
 ```
 
-Añadir en `~/.claude.json`:
+Add to `~/.claude.json`:
 
 ```json
 {
@@ -37,50 +39,50 @@ Añadir en `~/.claude.json`:
     "mcp-askpass": {
       "type": "stdio",
       "command": "python3",
-      "args": ["/ruta/a/mcp-askpass/mcp_askpass_server.py"]
+      "args": ["/path/to/mcp-askpass/mcp_askpass_server.py"]
     }
   }
 }
 ```
 
-Reiniciar Claude Code.
+Restart Claude Code.
 
-## Uso
+## Usage
 
-Claude invoca `ask_password(label)` automáticamente cuando necesita una contraseña. También puedes pedírselo explícitamente:
+Claude invokes `ask_password(label)` automatically when it needs a password. You can also request it explicitly:
 
 ```
-Necesito la contraseña de la base de datos para continuar
+I need the database password to continue
 ```
 
-Claude llamará a `ask_password("base de datos")` y aparecerá el popup.
+Claude will call `ask_password("database")` and the popup will appear.
 
-## Fallback para automatización
+## Fallback for automation
 
-Si necesitas pre-cargar la contraseña (flujos automatizados, sesiones remotas):
+If you need to pre-load the password (automated flows, remote sessions):
 
 ```bash
-printf 'tu_contraseña' > /tmp/.mcp-askpass
+printf 'your_password' > /tmp/.mcp-askpass
 chmod 600 /tmp/.mcp-askpass
 ```
 
-La próxima llamada a `ask_password()` leerá el fichero y lo borrará automáticamente.
+The next call to `ask_password()` will read the file and delete it automatically.
 
-## Seguridad
+## Security
 
-- La contraseña viaja de popup → MCP → Claude, nunca por el chat
-- `/tmp/.mcp-askpass` requiere permisos `600` y se borra tras la primera lectura
-- Sin almacenamiento persistente de contraseñas
-- Sin dependencias externas salvo `mcp`
+- The password travels popup → MCP → Claude, never through the chat
+- `/tmp/.mcp-askpass` requires `600` permissions and is deleted after the first read
+- No persistent password storage
+- No external dependencies beyond `mcp`
 
-## Compatibilidad
+## Compatibility
 
-| Entorno | Herramienta | Detección |
-|---------|-------------|-----------|
+| Environment | Tool | Detection |
+|-------------|------|-----------|
 | KDE Plasma | `kdialog` | `$KDE_FULL_SESSION`, `$XDG_CURRENT_DESKTOP`, `plasmashell` |
 | GNOME | `zenity` | `$GNOME_DESKTOP_SESSION_ID`, `$XDG_CURRENT_DESKTOP`, `gnome-shell` |
-| Sin GUI | — | Error descriptivo + instrucciones de fallback |
+| No GUI | — | Descriptive error + fallback instructions |
 
-## Licencia
+## License
 
 MIT
