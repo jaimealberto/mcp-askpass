@@ -1,0 +1,21 @@
+name: Python syntax
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compile:
+    name: Verificar sintaxis (py_compile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compilar todos los .py
+        run: |
+          files=$(git ls-files '*.py')
+          echo "Ficheros a verificar:"
+          echo "$files"
+          python -m py_compile $files
