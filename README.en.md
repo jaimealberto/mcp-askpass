@@ -75,6 +75,19 @@ The next call to `ask_password()` will read the file and delete it automatically
 - No persistent password storage
 - No external dependencies beyond `mcp`
 
+> ⚠️ **When wrapping the MCP in a shell script, do not capture `kdialog`/`zenity` with command substitution.** Assigning the output to a variable (`pass=$(kdialog --password …)`) makes the password appear **in plain text in Claude Code's Bash tool output panel**, visible to anyone watching the screen. The server itself is **not affected** (it uses `subprocess.run(capture_output=True)`, so the password never reaches the output); the risk only arises in shell wrappers. Always redirect the popup straight to the file:
+>
+> ```bash
+> # ❌ VULNERABLE — the password appears in Claude Code's output
+> pass=$(DISPLAY=:0 kdialog --password "Enter password")
+> printf '%s' "$pass" > /tmp/.mcp-askpass
+>
+> # ✅ SAFE — only "OK" appears in the output
+> DISPLAY=:0 kdialog --password "Enter password" > /tmp/.mcp-askpass 2>/dev/null
+> chmod 600 /tmp/.mcp-askpass
+> echo "OK — password captured."
+> ```
+
 ## Compatibility
 
 | Environment | Tool | Detection |
